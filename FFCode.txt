@@ -29,38 +29,27 @@ class Character:
     print("Total XP to level {nextlevel}: {nextxp}".format(nextlevel=(self.lvl+1), nextxp=self.lvl_up_xp))
  
   def show_stats(self):
-    print("HP = {hp}".format(hp=self.hp))
-    print("MP = {mp}".format(mp=self.mp))
-    print("Attack = {atk}".format(atk=self.atk))
-    print("Defence = {df}".format(df=self.df))
-    print("Speed = {spd}".format(spd=self.spd))
-    # print(cloud.xp)
-    # print(cloud.lvl_up_xp)
-    # print(cloud.remaining_xp)
+    self.remaining_xp = (self.lvl_up_xp - self.xp)
+    print("HP = {hp}, MP = {mp}".format(hp=self.hp, mp=self.mp))
+    print("ATK = {atk}, DEF = {df}, SPD = {spd}".format(atk=self.atk, df=self.df, spd=self.spd))
+    print("Total XP = {xp}".format(xp=self.xp))
+    print("{remaining} xp to level up!".format(remaining=self.remaining_xp))
+    print()
 
 # Made add_xp a global function so different characters
 # can easily be slotted into it
-def add_xp(character, new_xp):
-  character.xp += new_xp
+def add_xp(character, earned_xp):
+  character.xp += earned_xp
   if character.xp >= character.lvl_up_xp:
     character.level_up()
     character.show_stats()
-  character.remaining_xp = (character.lvl_up_xp - character.xp)
-    
+
+# Testing environment    
 cloud = Character("Cloud")
-# Testing environment
+# add_xp(cloud, 10)
+# add_xp(cloud, 14)
+# add_xp(cloud, 19)
+# add_xp(cloud, 26)
+# add_xp(cloud, 35)
 
-add_xp(cloud, 15)
-
-print("Total XP = {xp}".format(xp=cloud.xp))
-# print("Level: " + str(cloud.lvl))
-print(str(cloud.remaining_xp) + " xp to level up!")
-
-print()
-add_xp(cloud, 9)
-add_xp(cloud, 9)
-add_xp(cloud, 9)
-add_xp(cloud, 9)
-print(str(cloud.xp) + "XP")
-print(str(cloud.lvl_up_xp - cloud.xp) + " xp to level up!") 
 
