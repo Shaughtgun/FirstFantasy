@@ -1,0 +1,66 @@
+class Character:
+  def __init__(self, name):
+    self.name = name
+    self.hp = 10
+    self.mp = 5
+    self.atk = 1
+    self.df = 1
+    self.spd = 1
+    self.lvl = 1
+    self.xp = 0
+    self.lvl_up_xp = 10
+    # This defines how fast the xp required ramps up
+    self.remaining_xp = (self.lvl_up_xp - self.xp)
+# Function for leveling up. Adds stats, and xp till next level
+# Prints level and stats for clarity
+  def level_up(self):
+    print("{name} has leveled up!".format(name=self.name))
+    self.lvl += 1
+    # Stats go up, here
+    self.hp += 10
+    self.mp += 5
+    self.atk += 1
+    self.df += 1
+    self.spd += 1
+    print("Level: {level}".format(level=self.lvl))
+  # This is where xp required is enbiggened
+    lvlexponent = 10 + self.lvl ** 2
+    self.lvl_up_xp += lvlexponent
+    print("Total XP to level {nextlevel}: {nextxp}".format(nextlevel=(self.lvl+1), nextxp=self.lvl_up_xp))
+ 
+  def show_stats(self):
+    print("HP = {hp}".format(hp=self.hp))
+    print("MP = {mp}".format(mp=self.mp))
+    print("Attack = {atk}".format(atk=self.atk))
+    print("Defence = {df}".format(df=self.df))
+    print("Speed = {spd}".format(spd=self.spd))
+    # print(cloud.xp)
+    # print(cloud.lvl_up_xp)
+    # print(cloud.remaining_xp)
+
+# Made add_xp a global function so different characters
+# can easily be slotted into it
+def add_xp(character, new_xp):
+  character.xp += new_xp
+  if character.xp >= character.lvl_up_xp:
+    character.level_up()
+    character.show_stats()
+  character.remaining_xp = (character.lvl_up_xp - character.xp)
+    
+cloud = Character("Cloud")
+# Testing environment
+
+add_xp(cloud, 15)
+
+print("Total XP = {xp}".format(xp=cloud.xp))
+# print("Level: " + str(cloud.lvl))
+print(str(cloud.remaining_xp) + " xp to level up!")
+
+print()
+add_xp(cloud, 9)
+add_xp(cloud, 9)
+add_xp(cloud, 9)
+add_xp(cloud, 9)
+print(str(cloud.xp) + "XP")
+print(str(cloud.lvl_up_xp - cloud.xp) + " xp to level up!") 
+
