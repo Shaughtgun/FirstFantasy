@@ -13,6 +13,7 @@ class Character:
     self.gold = 0
     self.lvl_up_xp = 10
     self.remaining_xp = (self.lvl_up_xp - self.xp)
+    self.is_defeated = False
   def __repr__(self):
     reprstring = "{name}: Level {level}".format(name=self.name, level=self.lvl)
     return reprstring
@@ -77,40 +78,84 @@ class Monster:
     self.is_defeated = False
   def __repr__(self):
     return self.name
-# This is to do dmg to mobs. Will reo
-def attack_mob(mob, dmg):
-  mob.hp -= dmg
-  if mob.hp <= 0:
-    mob.is_defeated = True
-    print("You have defeated {mob}!".format(mob=mob.name))
-    add_xp(cloud, mob.xp)
-    add_gold(cloud, mob.gold)
-    mob_list.remove(mob)
-  else:
-    print("{mob} has {hp} HP.".format(mob=mob.name, hp=mob.hp))
+  
+  def attack_character(self, character):
+    character.hp -= self.atk
+    if character.hp <= 0:
+      print("{self} attacks!".format(self=self.name))
+      character.is_defeated = True
+    else:
+      print("{self} attacks!".format(self=self.name))
+      print("{character} has {hp} HP.".format(character=character.name, hp=character.hp))
 
 
-#Spawns mobs for a fight, and puts them into a useable list
-def spawn_mobs(level):
-  rand = random.randint(1,10)
-  randlist = list(range(rand))
-  monsterlist = []
-  if level == 1:
-    for each in range(rand):
-      each = Monster("Glob " + str(each+1))
-      monsterlist.append(each)
-  elif level == 2:
-    for each in range(rand):
-      each = Monster("Wolf " + str(each+1))
-      monsterlist.append(each)
-  return(monsterlist)
 
-mob_list = spawn_mobs(cloud.lvl)
-print(mob_list)
-while len(mob_list) > 0:
-  attack_mob(mob_list[0], 1)
-  print(mob_list)
-print(cloud.xp)
-print(cloud.gold)
+#### BATTLE MODE !!! #######  
+
+def battle_mode():
+  # Spawns mobs for a fight, and puts them into a useable list
+  def spawn_mobs(level):
+    rand = random.randint(1,3)
+    randlist = list(range(rand))
+    monsterlist = []
+    if level == 1:
+      for each in range(rand):
+        each = Monster("Glob " + str(each+1))
+        monsterlist.append(each)
+    elif level == 2:
+      for each in range(rand):
+        each = Monster("Wolf " + str(each+1))
+        monsterlist.append(each)
+    return(monsterlist)
+
+  global battle_xp
+  global battle_gold
+  battle_xp = 0
+  battle_gold = 0
+  mob_list = spawn_mobs(cloud.lvl)
+ 
+  def attack_mob(mob, dmg):
+    mob.hp -= dmg
+    if mob.hp <= 0:
+      mob.is_defeated = True
+      print("You have defeated {mob}!".format(mob=mob.name))
+      mob_list.remove(mob)
+    else:
+      print("{mob} has {hp} HP.".format(mob=mob.name, hp=mob.hp))
+  
+# The main "Battle happens here and lasts while there are monsters alive"
+  while len(mob_list) > 0:
+    if cloud.is_defeated == True:
+      print("You have been defeated! :(")
+      break
+    print(mob_list)
+    mob_select = input("Which creature would you like to attack? ")
+    mob_found = False  
+    for mob in mob_list:
+      if mob_select.upper() == mob.name.upper():
+        mob_found = True
+    if mob_found == True:
+      for mob in mob_list:
+        if mob_select.upper() == mob.name.upper():
+          mob_found = True
+          attack_mob(mob, cloud.atk)
+          if mob.is_defeated == True:
+            battle_xp += mob.xp
+            battle_gold += mob.gold
+      for mob in mob_list:
+        mob.attack_character(cloud)      
+    else:
+      print("Invalid Target")
+  if len(mob_list) == 0 and cloud.is_defeated == False:
+    print("YOU WIN!")
+    print("{char} has earned {xp}XP and {gold} gold!".format(
+    char=cloud, xp=battle_xp, gold=battle_gold))
+    add_xp(cloud, battle_xp)
+    add_gold(cloud, battle_gold)
+
+# print(cloud.xp)
+# print(cloud.gold)
+battle_mode()
+
 
   
