@@ -8,17 +8,16 @@ class Character:
     self.atk = 1
     self.df = 1
     self.spd = 1
-    self.lvl = 1
+    self.lvl = 2
     self.xp = 0
     self.gold = 0
     self.lvl_up_xp = 10
     self.remaining_xp = (self.lvl_up_xp - self.xp)
     self.is_defeated = False
   def __repr__(self):
-    reprstring = "{name}: Level {level}".format(name=self.name, level=self.lvl)
+    reprstring = self.name
     return reprstring
 # Function for leveling up. Adds stats, and xp till next level
-# Prints level and stats for clarity
   def level_up(self):
     print("{name} has leveled up!".format(name=self.name))
     self.lvl += 1
@@ -36,6 +35,7 @@ class Character:
     # This could be potentially removed, mostly used for tracking
     print("Total XP to level {nextlevel}: {nextxp}".format(nextlevel=(self.lvl+1), nextxp=self.lvl_up_xp))
  
+ # Prints level and stats for clarity and testing
   def show_stats(self):
     self.remaining_xp = (self.lvl_up_xp - self.xp)
     # To avoid it saying a negative xp required.
@@ -56,15 +56,9 @@ def add_xp(character, earned_xp):
 def add_gold(character, earned_gold):
   character.gold += earned_gold
 
-# Testing environment    
+# Testing environment################    
 cloud = Character("Cloud")
-# add_xp(cloud, 10)
-# add_xp(cloud, 5)
-# add_xp(cloud, 19)
-# add_xp(cloud, 26)
-# add_xp(cloud, 35)
-# print(cloud)
-# cloud.show_stats()
+#####################################
 class Monster:
   def __init__(self, name):
     self.name = name
@@ -80,32 +74,43 @@ class Monster:
     return self.name
   
   def attack_character(self, character):
+    print("{self} attacks {char} for {dmg} damage!".format(self=self.name, char=character, dmg=self.atk))
     character.hp -= self.atk
     if character.hp <= 0:
-      print("{self} attacks!".format(self=self.name))
       character.is_defeated = True
     else:
-      print("{self} attacks!".format(self=self.name))
-      print("{character} has {hp} HP.".format(character=character.name, hp=character.hp))
+      print("{character} has {hp} HP.".format(character=character, hp=character.hp))
 
 
 
 #### BATTLE MODE !!! #######  
 
 def battle_mode():
+  # Character_list is for the future to implement multiperson teams
+  character_list = []
   # Spawns mobs for a fight, and puts them into a useable list
   def spawn_mobs(level):
-    rand = random.randint(1,3)
-    randlist = list(range(rand))
+    num_of_enemies = random.randint(1,3)
+    randlist = list(range(num_of_enemies))
     monsterlist = []
+    num_of_wolves = 0
+    num_of_globs = 0
     if level == 1:
-      for each in range(rand):
-        each = Monster("Glob " + str(each+1))
+      for each in range(num_of_enemies):
+        num_of_globs += 1
+        each = Monster("Glob " + str(num_of_globs))
         monsterlist.append(each)
     elif level == 2:
-      for each in range(rand):
-        each = Monster("Wolf " + str(each+1))
-        monsterlist.append(each)
+      for each in range(len(randlist)):
+        rand2 = random.randint(1,3)
+        if rand2 >= 2:
+          num_of_wolves += 1 
+          each = Monster("Wolf " + str(num_of_wolves))
+          monsterlist.append(each)
+        elif rand2 < 2:
+          num_of_globs += 1
+          each = Monster("Glob " + str(num_of_globs))
+          monsterlist.append(each)
     return(monsterlist)
 
   global battle_xp
@@ -131,19 +136,21 @@ def battle_mode():
     print(mob_list)
     mob_select = input("Which creature would you like to attack? ")
     mob_found = False  
+    #This section is just to address typos for monsters
     for mob in mob_list:
       if mob_select.upper() == mob.name.upper():
         mob_found = True
+    #If no typos, battle occurs as expected
     if mob_found == True:
       for mob in mob_list:
         if mob_select.upper() == mob.name.upper():
-          mob_found = True
           attack_mob(mob, cloud.atk)
           if mob.is_defeated == True:
             battle_xp += mob.xp
             battle_gold += mob.gold
       for mob in mob_list:
-        mob.attack_character(cloud)      
+        mob.attack_character(cloud)  
+    #If there are typos it loops back to input stage    
     else:
       print("Invalid Target")
   if len(mob_list) == 0 and cloud.is_defeated == False:
