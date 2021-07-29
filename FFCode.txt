@@ -41,12 +41,13 @@ class Character:
   def show_stats(self):
     self.remaining_xp = (self.lvl_up_xp - self.xp)
     # To avoid it saying a negative xp required.
-    if self.remaining_xp < 0: self.remaining_xp = 0 
+    if self.remaining_xp < 0: self.remaining_xp = 0
     print("HP = {hp1}/{hp2}, MP = {mp1}/{mp2}".format(hp1=self.current_hp, hp2=self.max_hp, mp1=self.current_mp, mp2=self.max_mp))
     print("ATK = {atk}, DEF = {df}, SPD = {spd}".format(atk=self.atk, df=self.df, spd=self.spd))
     print("Total XP = {xp}".format(xp=self.xp))
     print("{remaining} xp to level up!".format(remaining=self.remaining_xp))
-    print()
+    print("Gold: {gold}g".format(gold=self.gold))
+
 
 # Made add_xp a global function so different characters
 # can easily be slotted into it
@@ -136,6 +137,8 @@ def battle_mode():
   while len(mob_list) > 0:
     if cloud.is_defeated == True:
       print("You have been defeated! :(")
+      global game_ended
+      game_ended = True
       break
     print(mob_list)
     mob_select = input("Which creature would you like to attack? ")
@@ -164,7 +167,6 @@ def battle_mode():
     add_xp(cloud, battle_xp)
     add_gold(cloud, battle_gold)
 ###########    End of battle mode ##########################
-# battle_mode()
 
 #########################################
 ############### Food mode ###############
@@ -172,10 +174,10 @@ def battle_mode():
 
 # Dict = Food: [Price, heal amount]
 food_dict = {
-      "Apple": [3, 1], "Hummus": [5, 2], "Gyro": [7, 3]
+      "Apple": [3, 1], "Hummus": [5, 2], "Gyro": [15, 3]
     }
 def food():
-  food_menu = ""
+  food_menu = "| "
   food_found = False
   
   # Function to take food and add it to characters hp
@@ -184,22 +186,67 @@ def food():
     character.current_hp += food_dict[food][1]
     if character.current_hp > character.max_hp:
       character.current_hp = character.max_hp
+    print(character.name + " has {current}/{maxhp} HP".format(current=character.current_hp, maxhp=character.max_hp))
+    print(character.name + " has {gold} remaining".format(gold=character.gold))
   
   for key in food_dict:
-    food_menu += key + ": " + str(food_dict[key][0]) + "g "
+    food_menu += key + ": " + str(food_dict[key][0]) + "g | "
   while food_found == False:
     print(food_menu)
+    print("| type 'back' to go to previous menu |")
     food_select = input("What would you like to eat? ")
     food = food_select.title()
-    for key in food_dict:
-      if food == key:
-        food_found = True
-    heal(food, cloud)
+    if food in food_dict == False:
+      print("Invalid Selection")
+    elif food in food_dict and cloud.gold >= food_dict[food][0]:
+      food_found = True
+      heal(food, cloud)
+    elif food in food_dict and cloud.gold < food_dict[food][0]:
+      print("You do not have enough money. You are poor. :(")
+    elif food == "Back":
+      food_found = True
+      main_menu()
+      
 
-battle_mode()
+###########################################
+##########END OF FOOD MODE#################
+###########################################
+
+############-MODE SELECTION-###############
+
+game_ended = False
+def main_menu():
+  while game_ended == False:
+    print("_____________________________")
+    print("| Battle | Eat | Show Stats |")
+    print("-----------------------------")
+    menu_selection = input("What would you like to do? ")
+    if menu_selection.upper() == "BATTLE":
+      battle_mode()
+    elif menu_selection.upper() == "EAT":
+      food()
+    elif menu_selection.upper() == "SHOW STATS":
+      name_formatting = "___"
+      for i in cloud.name:
+        name_formatting += "_"
+      name_formatting += "___"
+      print(name_formatting)
+      print("---{name}---".format(name=cloud.name))
+      print(name_formatting)
+      cloud.show_stats()
+      go_back = input("Press Enter go to main menu\n")
+      if go_back.upper() != None:
+        main_menu()
+    else:
+      print("")
+      print("Invalid Selection")
+
+main_menu()
+
+# battle_mode()
 # print(food_dict)
-food()
-cloud.show_stats()
+# food()
+# cloud.show_stats()
 
 
 
