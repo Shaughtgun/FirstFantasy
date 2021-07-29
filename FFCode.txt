@@ -3,12 +3,14 @@ import random
 class Character:
   def __init__(self, name):
     self.name = name
-    self.hp = 10
-    self.mp = 5
+    self.max_hp = 10
+    self.current_hp = 10
+    self.max_mp = 5
+    self.current_mp = 5
     self.atk = 1
     self.df = 1
     self.spd = 1
-    self.lvl = 2
+    self.lvl = 1
     self.xp = 0
     self.gold = 0
     self.lvl_up_xp = 10
@@ -22,8 +24,8 @@ class Character:
     print("{name} has leveled up!".format(name=self.name))
     self.lvl += 1
     # Stats go up, here
-    self.hp += 10
-    self.mp += 5
+    self.max_hp += 10
+    self.max_mp += 5
     self.atk += 1
     self.df += 1
     self.spd += 1
@@ -40,7 +42,7 @@ class Character:
     self.remaining_xp = (self.lvl_up_xp - self.xp)
     # To avoid it saying a negative xp required.
     if self.remaining_xp < 0: self.remaining_xp = 0 
-    print("HP = {hp}, MP = {mp}".format(hp=self.hp, mp=self.mp))
+    print("HP = {hp1}/{hp2}, MP = {mp1}/{mp2}".format(hp1=self.current_hp, hp2=self.max_hp, mp1=self.current_mp, mp2=self.max_mp))
     print("ATK = {atk}, DEF = {df}, SPD = {spd}".format(atk=self.atk, df=self.df, spd=self.spd))
     print("Total XP = {xp}".format(xp=self.xp))
     print("{remaining} xp to level up!".format(remaining=self.remaining_xp))
@@ -62,8 +64,10 @@ cloud = Character("Cloud")
 class Monster:
   def __init__(self, name):
     self.name = name
-    self.hp = 1
-    self.mp = 0
+    self.max_hp = 1
+    self.current_hp = 1
+    self.max_mp = 0
+    self.current_mp = 0
     self.atk = 1
     self.df = 0
     self.spd = 0
@@ -75,11 +79,11 @@ class Monster:
   
   def attack_character(self, character):
     print("{self} attacks {char} for {dmg} damage!".format(self=self.name, char=character, dmg=self.atk))
-    character.hp -= self.atk
-    if character.hp <= 0:
+    character.current_hp -= self.atk
+    if character.current_hp <= 0:
       character.is_defeated = True
     else:
-      print("{character} has {hp} HP.".format(character=character, hp=character.hp))
+      print("{character} has {hp} HP.".format(character=character, hp=character.current_hp))
 
 
 
@@ -120,13 +124,13 @@ def battle_mode():
   mob_list = spawn_mobs(cloud.lvl)
  
   def attack_mob(mob, dmg):
-    mob.hp -= dmg
-    if mob.hp <= 0:
+    mob.current_hp -= dmg
+    if mob.current_hp <= 0:
       mob.is_defeated = True
       print("You have defeated {mob}!".format(mob=mob.name))
       mob_list.remove(mob)
     else:
-      print("{mob} has {hp} HP.".format(mob=mob.name, hp=mob.hp))
+      print("{mob} has {hp} HP.".format(mob=mob.name, hp=mob.current_hp))
   
 # The main "Battle happens here and lasts while there are monsters alive"
   while len(mob_list) > 0:
@@ -159,10 +163,44 @@ def battle_mode():
     char=cloud, xp=battle_xp, gold=battle_gold))
     add_xp(cloud, battle_xp)
     add_gold(cloud, battle_gold)
+###########    End of battle mode ##########################
+# battle_mode()
 
-# print(cloud.xp)
-# print(cloud.gold)
+#########################################
+############### Food mode ###############
+#########################################
+
+# Dict = Food: [Price, heal amount]
+food_dict = {
+      "Apple": [3, 1], "Hummus": [5, 2], "Gyro": [7, 3]
+    }
+def food():
+  food_menu = ""
+  food_found = False
+  
+  # Function to take food and add it to characters hp
+  def heal(food, character):
+    #print(food_dict[food][1])
+    character.current_hp += food_dict[food][1]
+    if character.current_hp > character.max_hp:
+      character.current_hp = character.max_hp
+  
+  for key in food_dict:
+    food_menu += key + ": " + str(food_dict[key][0]) + "g "
+  while food_found == False:
+    print(food_menu)
+    food_select = input("What would you like to eat? ")
+    food = food_select.title()
+    for key in food_dict:
+      if food == key:
+        food_found = True
+    heal(food, cloud)
+
 battle_mode()
+# print(food_dict)
+food()
+cloud.show_stats()
+
 
 
   
