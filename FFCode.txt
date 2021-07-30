@@ -59,9 +59,7 @@ def add_xp(character, earned_xp):
 def add_gold(character, earned_gold):
   character.gold += earned_gold
 
-# Testing environment################    
-cloud = Character("Cloud")
-#####################################
+##########-MONSTER CLASS AND BESTIARY-###############
 class Monster:
   def __init__(self, name):
     self.name = name
@@ -86,10 +84,53 @@ class Monster:
     else:
       print("{character} has {hp} HP.".format(character=character, hp=character.current_hp))
 
+class Glob(Monster):
+  def __init__(self, name):
+    self.name = name
+    self.max_hp = 1
+    self.current_hp = 1
+    self.max_mp = 0
+    self.current_mp = 0
+    self.atk = 1
+    self.df = 0
+    self.spd = 0
+    self.xp = 2
+    self.gold = 3
+    self.is_defeated = False
+  
+class Wolf(Monster):
+  def __init__(self, name):
+    self.name = name
+    self.max_hp = 3
+    self.current_hp = 3
+    self.max_mp = 0
+    self.current_mp = 0
+    self.atk = 1
+    self.df = 0
+    self.spd = 0
+    self.xp = 3
+    self.gold = 4
+    self.is_defeated = False
+
+class Skelly(Monster):
+  def __init__(self, name):
+    self.name = name
+    self.max_hp = 4
+    self.current_hp = 4
+    self.max_mp = 0
+    self.current_mp = 0
+    self.atk = 2
+    self.df = 0
+    self.spd = 0
+    self.xp = 4
+    self.gold = 5
+    self.is_defeated = False
 
 
-#### BATTLE MODE !!! #######  
 
+################################################
+############# BATTLE MODE !!! ##################  
+################################################
 def battle_mode():
   # Character_list is for the future to implement multiperson teams
   character_list = []
@@ -98,31 +139,48 @@ def battle_mode():
     num_of_enemies = random.randint(1,3)
     randlist = list(range(num_of_enemies))
     monsterlist = []
-    num_of_wolves = 0
     num_of_globs = 0
+    num_of_wolves = 0
+    num_of_skellys = 0
     if level == 1:
       for each in range(num_of_enemies):
         num_of_globs += 1
-        each = Monster("Glob " + str(num_of_globs))
+        each = Glob("Glob " + str(num_of_globs))
         monsterlist.append(each)
     elif level == 2:
       for each in range(len(randlist)):
         rand2 = random.randint(1,3)
         if rand2 >= 2:
           num_of_wolves += 1 
-          each = Monster("Wolf " + str(num_of_wolves))
+          each = Wolf("Wolf " + str(num_of_wolves))
           monsterlist.append(each)
         elif rand2 < 2:
           num_of_globs += 1
-          each = Monster("Glob " + str(num_of_globs))
+          each = Glob("Glob " + str(num_of_globs))
           monsterlist.append(each)
+    elif level == 3:
+      for each in range(len(randlist)):
+        rand2 = random.randint(1,8)
+        if rand2 >= 5:
+          num_of_skellys += 1
+          each = Skelly("Skelly " + str(num_of_skellys))
+          monsterlist.append(each)
+        elif rand2 >= 2:
+          num_of_wolves += 1 
+          each = Wolf("Wolf " + str(num_of_wolves))
+          monsterlist.append(each)
+        elif rand2 < 2:
+          num_of_globs += 1
+          each = Glob("Glob " + str(num_of_globs))
+          monsterlist.append(each)
+
     return(monsterlist)
 
   global battle_xp
   global battle_gold
   battle_xp = 0
   battle_gold = 0
-  mob_list = spawn_mobs(cloud.lvl)
+  mob_list = spawn_mobs(player.lvl)
  
   def attack_mob(mob, dmg):
     mob.current_hp -= dmg
@@ -135,7 +193,7 @@ def battle_mode():
   
 # The main "Battle happens here and lasts while there are monsters alive"
   while len(mob_list) > 0:
-    if cloud.is_defeated == True:
+    if player.is_defeated == True:
       print("You have been defeated! :(")
       global game_ended
       game_ended = True
@@ -151,21 +209,21 @@ def battle_mode():
     if mob_found == True:
       for mob in mob_list:
         if mob_select.upper() == mob.name.upper():
-          attack_mob(mob, cloud.atk)
+          attack_mob(mob, player.atk)
           if mob.is_defeated == True:
             battle_xp += mob.xp
             battle_gold += mob.gold
       for mob in mob_list:
-        mob.attack_character(cloud)  
+        mob.attack_character(player)  
     #If there are typos it loops back to input stage    
     else:
       print("Invalid Target")
-  if len(mob_list) == 0 and cloud.is_defeated == False:
+  if len(mob_list) == 0 and player.is_defeated == False:
     print("YOU WIN!")
     print("{char} has earned {xp}XP and {gold} gold!".format(
-    char=cloud, xp=battle_xp, gold=battle_gold))
-    add_xp(cloud, battle_xp)
-    add_gold(cloud, battle_gold)
+    char=player, xp=battle_xp, gold=battle_gold))
+    add_gold(player, battle_gold)
+    add_xp(player, battle_xp)
 ###########    End of battle mode ##########################
 
 #########################################
@@ -174,7 +232,7 @@ def battle_mode():
 
 # Dict = Food: [Price, heal amount]
 food_dict = {
-      "Apple": [3, 1], "Hummus": [5, 2], "Gyro": [15, 3]
+      "Apple": [4, 1], "Hummus": [6, 2], "Gyro": [8, 3]
     }
 def food():
   food_menu = "| "
@@ -187,21 +245,23 @@ def food():
     if character.current_hp > character.max_hp:
       character.current_hp = character.max_hp
     print(character.name + " has {current}/{maxhp} HP".format(current=character.current_hp, maxhp=character.max_hp))
-    print(character.name + " has {gold} remaining".format(gold=character.gold))
   
   for key in food_dict:
     food_menu += key + ": " + str(food_dict[key][0]) + "g | "
   while food_found == False:
+    print("|-- You have {gold} gold --|".format(gold=player.gold))
     print(food_menu)
     print("| type 'back' to go to previous menu |")
+    print("")
     food_select = input("What would you like to eat? ")
     food = food_select.title()
     if food in food_dict == False:
       print("Invalid Selection")
-    elif food in food_dict and cloud.gold >= food_dict[food][0]:
+    elif food in food_dict and player.gold >= food_dict[food][0]:
       food_found = True
-      heal(food, cloud)
-    elif food in food_dict and cloud.gold < food_dict[food][0]:
+      player.gold -= food_dict[food][0]
+      heal(food, player)
+    elif food in food_dict and player.gold < food_dict[food][0]:
       print("You do not have enough money. You are poor. :(")
     elif food == "Back":
       food_found = True
@@ -220,20 +280,21 @@ def main_menu():
     print("_____________________________")
     print("| Battle | Eat | Show Stats |")
     print("-----------------------------")
-    menu_selection = input("What would you like to do? ")
+    menu_selection = input("What would you like to do?\n")
     if menu_selection.upper() == "BATTLE":
       battle_mode()
     elif menu_selection.upper() == "EAT":
       food()
     elif menu_selection.upper() == "SHOW STATS":
       name_formatting = "___"
-      for i in cloud.name:
+      for i in player.name:
         name_formatting += "_"
       name_formatting += "___"
       print(name_formatting)
-      print("---{name}---".format(name=cloud.name))
-      print(name_formatting)
-      cloud.show_stats()
+      print("|--{name}--|".format(name=player.name))
+      
+      print("|" + name_formatting[:-2] + "|")
+      player.show_stats()
       go_back = input("Press Enter go to main menu\n")
       if go_back.upper() != None:
         main_menu()
@@ -241,12 +302,23 @@ def main_menu():
       print("")
       print("Invalid Selection")
 
+################-GAME START-##########################   
+accepted = False
+while accepted == False:
+  player_name = input("What is your name?\n")
+  if len(player_name) <= 10:
+    break
+  else:
+    print("Only names up to 10 characters allowed.")
+player = Character(player_name)
+####################################################
+
 main_menu()
 
 # battle_mode()
 # print(food_dict)
 # food()
-# cloud.show_stats()
+# player.show_stats()
 
 
 
