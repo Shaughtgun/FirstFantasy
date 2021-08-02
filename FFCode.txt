@@ -7,7 +7,7 @@ class Character:
     self.current_hp = 10
     self.max_mp = 5
     self.current_mp = 5
-    self.atk = 5
+    self.atk = 1
     self.df = 1
     self.spd = 1
     self.lvl = 1
@@ -91,7 +91,7 @@ class Glob(Monster):
     self.current_hp = 1
     self.max_mp = 0
     self.current_mp = 0
-    self.atk = 1
+    self.atk = 10
     self.df = 0
     self.spd = 0
     self.xp = 2
@@ -138,6 +138,20 @@ class Zomby(Monster):
     self.spd = 0
     self.xp = 4
     self.gold = 5
+    self.is_defeated = False
+
+class Dragon(Monster):
+  def __init__(self, name):
+    self.name = name
+    self.max_hp = 15
+    self.current_hp = 15
+    self.max_mp = 0
+    self.current_mp = 0
+    self.atk = 4
+    self.df = 0
+    self.spd = 0
+    self.xp = 100
+    self.gold = 100
     self.is_defeated = False
 
 
@@ -209,6 +223,9 @@ def battle_mode():
           num_of_globs += 1
           each = Glob("Glob " + str(num_of_globs))
           monsterlist.append(each)
+    elif level == 5:
+      boss = Dragon("Dagron")
+      monsterlist.append(boss)
 
     return(monsterlist)
 
@@ -291,17 +308,19 @@ def food():
     print("")
     food_select = input("What would you like to eat? ")
     food = food_select.title()
-    if food in food_dict == False:
-      print("Invalid Selection")
-    elif food in food_dict and player.gold >= food_dict[food][0]:
+    if food in food_dict and player.gold >= food_dict[food][0]:
       food_found = True
       player.gold -= food_dict[food][0]
       heal(food, player)
     elif food in food_dict and player.gold < food_dict[food][0]:
       print("You do not have enough money. You are poor. :(")
+      print()
     elif food == "Back":
       food_found = True
       main_menu()
+    else:
+      print("Invalid Selection")
+      print()
       
 
 ###########################################
@@ -339,17 +358,30 @@ def main_menu():
       print("Invalid Selection")
 
 ################-GAME START-##########################   
-accepted = False
-while accepted == False:
-  player_name = input("What is your name?\n")
-  if len(player_name) <= 10:
-    break
+def setup():
+  accepted = False
+  while accepted == False:
+    player_name = input("What is your name?\n")
+    if len(player_name) <= 10:
+      break
+    else:
+      print("Only names up to 10 characters allowed.")
+  return player_name
+###################################################
+end_game = False
+while end_game != True:
+  player = Character(setup())
+  main_menu()
+  print()
+  restart = input("Would you like to play again? ")
+  if restart.upper() == "YES":
+    game_ended = False
+    print()
   else:
-    print("Only names up to 10 characters allowed.")
-player = Character(player_name)
-####################################################
+    end_game = True
+    break
+print("Thank you for playing!")
 
-main_menu()
 
 # battle_mode()
 # print(food_dict)
