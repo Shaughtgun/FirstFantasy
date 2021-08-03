@@ -1,5 +1,4 @@
 import random
-
 class Character:
   def __init__(self, name):
     self.name = name
@@ -42,12 +41,12 @@ class Character:
     self.remaining_xp = (self.lvl_up_xp - self.xp)
     # To avoid it saying a negative xp required.
     if self.remaining_xp < 0: self.remaining_xp = 0
+    print("Level: {level}".format(level=self.lvl))
     print("HP = {hp1}/{hp2}, MP = {mp1}/{mp2}".format(hp1=self.current_hp, hp2=self.max_hp, mp1=self.current_mp, mp2=self.max_mp))
     print("ATK = {atk}, DEF = {df}, SPD = {spd}".format(atk=self.atk, df=self.df, spd=self.spd))
     print("Total XP = {xp}".format(xp=self.xp))
     print("{remaining} xp to level up!".format(remaining=self.remaining_xp))
     print("Gold: {gold}g".format(gold=self.gold))
-
 
 # Made add_xp a global function so different characters
 # can easily be slotted into it
@@ -91,7 +90,7 @@ class Glob(Monster):
     self.current_hp = 1
     self.max_mp = 0
     self.current_mp = 0
-    self.atk = 10
+    self.atk = 1
     self.df = 0
     self.spd = 0
     self.xp = 2
@@ -129,15 +128,15 @@ class Skelly(Monster):
 class Zomby(Monster):
   def __init__(self, name):
     self.name = name
-    self.max_hp = 4
-    self.current_hp = 4
+    self.max_hp = 5
+    self.current_hp = 5
     self.max_mp = 0
     self.current_mp = 0
     self.atk = 2
     self.df = 0
     self.spd = 0
-    self.xp = 4
-    self.gold = 5
+    self.xp = 5
+    self.gold = 6
     self.is_defeated = False
 
 class Dragon(Monster):
@@ -147,13 +146,12 @@ class Dragon(Monster):
     self.current_hp = 15
     self.max_mp = 0
     self.current_mp = 0
-    self.atk = 4
+    self.atk = 5
     self.df = 0
     self.spd = 0
     self.xp = 100
     self.gold = 100
     self.is_defeated = False
-
 
 
 ################################################
@@ -285,7 +283,7 @@ def battle_mode():
 
 # Dict = Food: [Price, heal amount]
 food_dict = {
-      "Apple": [4, 1], "Hummus": [6, 2], "Gyro": [8, 3]
+      "Apple": [8, 3], "Hummus": [12, 5], "Gyro": [16, 7]
     }
 def food():
   food_menu = "| "
@@ -331,6 +329,7 @@ def food():
 
 game_ended = False
 def main_menu():
+  global game_ended
   while game_ended == False:
     print("_____________________________")
     print("| Battle | Eat | Show Stats |")
@@ -338,6 +337,11 @@ def main_menu():
     menu_selection = input("What would you like to do?\n")
     if menu_selection.upper() == "BATTLE":
       battle_mode()
+      if player.lvl > 5:
+        print()
+        print("You have slain the Dagron and won the game! GGWP!")
+        game_ended = True
+        break
     elif menu_selection.upper() == "EAT":
       food()
     elif menu_selection.upper() == "SHOW STATS":
@@ -382,7 +386,6 @@ while end_game != True:
     break
 print("Thank you for playing!")
 
-
 # battle_mode()
 # print(food_dict)
 # food()
@@ -391,3 +394,4 @@ print("Thank you for playing!")
 
 
   
+
